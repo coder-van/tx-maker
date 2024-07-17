@@ -26,10 +26,10 @@ interface IPaymaster {
      * @param version         - The version default 1.
      * @param txHash          - Hash of the tx.
      * @param transaction     - abi encode transaction data.
-     * @return context         - context
      * @return validationData - abi.encodePacked(MAGIC_VALUE_SENDER, validUntil, validAfter)
+     * @return context        - context
      */
-    function validatePaymasterTransaction(uint256 version, bytes32 txHash, bytes calldata transaction) external returns (bytes memory context, uint256 validationData);
+    function validatePaymasterTransaction(uint256 version, bytes32 txHash, bytes calldata transaction) external returns (uint256 validationData, bytes memory context);
 
 
     /**

@@ -23,6 +23,7 @@ Second step, transfer some native coin to 2 account
 ```
 node scripts/01_transfer.mjs
 node scripts/04_transfer_7560.mjs
+node scripts/05_transfer_7560_f.mjs
 ```
 
 Third step, post tx data to node rpc, tx data in ./data/7560_senttx_rpc_data.json

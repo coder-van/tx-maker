@@ -1,5 +1,4 @@
 import {ethers} from 'ethers';
-import {addressFromMnemonic} from './adresses.mjs';
 
 let provider = new ethers.JsonRpcProvider("http://localhost:8545")
 
@@ -19,9 +18,9 @@ async function run() {
         "function getNonce(address sender, uint192 key) view returns (address nonce)",
         "function incNonce(address sender, uint192 key)"
     ]
-    const contract = new ethers.Contract("0x4200000000000000000000000000000000000024", abi, signer)
-    const nonce1 = await contract.getNonce(signer.address, 123)
-    await contract.incNonce(signer.address, 123)
+    const contract = new ethers.Contract("0x0000000000000000000000000000000000007712", abi, signer)
+    const nonce1 = await contract.getNonce('0x38f763bd07bc42e0d1a331c0a89233c3e5567d07', 1)
+    // await contract.incNonce(signer.address, 1)
     console.log("nonce1", nonce1)
 }
 

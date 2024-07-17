@@ -1,4 +1,5 @@
 import {ethers} from 'ethers';
+import {addressFromMnemonic} from './tools/adresses.mjs';
 
 let provider = new ethers.JsonRpcProvider("http://localhost:8545")
 
@@ -13,7 +14,7 @@ async function run() {
     console.log(`Account[${signer.address}] balance=${balance}`)
     const nonce = await provider.getTransactionCount(signer.address)
     console.log(`Account[${signer.address}] nonce=${nonce}`)
-    const to = "0x0000000000000000000000000000000000007560" // addressFromMnemonic(0).address
+    const to = "0x00000000000000000000000000000000ffff7560" // addressFromMnemonic(0).address
     // '0xF0359B80550c6cb1Be3dA8611f2396e3F2a9Cc3C'
     const tx = await signer.sendTransaction({
         to,

@@ -20,8 +20,6 @@ contract NonceManager {
     /// @notice Mapping of sender to key to nonce.
     mapping(address => mapping(uint192 => uint256)) internal _nonceSequenceNumber;
 
-    /// slither-disable-next-line locked-ether
-    /// TODO(sm-stack): Do we need fallback function?
     fallback(bytes calldata data) external returns (bytes memory) {
         if (msg.sender == AA_ENTRY_POINT) {
             _validateIncrement(data);
