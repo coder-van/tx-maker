@@ -124,7 +124,14 @@ async function run() {
 
     await estimateRIP7560TransactionGas(txRaw, "0x" + BigInt(height).toString(16))
 
-    await sendRIP7560Tx(txRaw)
+    const resdata = await sendRIP7560Tx(txRaw)
+
+    console.log(resdata.data)
+    const txid = resdata.data.result
+    setTimeout(async () => {
+        const status = await provider.getTransactionReceipt(txid)
+        console.log(status)
+    }, 3000)
 }
 
 run()
