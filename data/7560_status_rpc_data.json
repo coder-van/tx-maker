@@ -1,0 +1,8 @@
+{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "eth_getRip7560BundleStatus",
+    "params": [
+        "0xca77a8b7c6ebdea8ad0332ade93af23ddb75ac2577ed36d14c4b6973dbb511da"
+    ]
+}

@@ -1,0 +1,8 @@
+// const hre = require("hardhat");
+
+export const ADDRS = {
+  LuckyERC20Token: '0x5C59C83c099F72FcE832208f96a23a1E43737a14'
+  // LuckyERC20Token: '0x5067457698Fd6Fa1C6964e416b3f42713513B3dD', // matdev
+  // LuckyERC721Token: '0x4b6aB5F819A515382B0dEB6935D793817bB4af28',
+  // LuckyERC1155Token: '0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397'
+}
