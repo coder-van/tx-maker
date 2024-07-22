@@ -92,11 +92,11 @@ contract Rip7560SimpleAccount is Rip7560BaseAccount, UUPSUpgradeable, Initializa
         override
         returns (bytes32 validationData)
     {
-        // TransactionType4 memory txData = _decodeTransaction(transaction);
-        // bytes32 hash = toEthSignedMessageHash(txHash);
-        // if (owner != ECDSA.recover(hash, txData.signature)) {
-        //     return _packValidationData(ValidationData(MAGIC_VALUE_SIGFAIL, 0, 0));
-        // }
+        TransactionType4 memory txData = _decodeTransaction(transaction);
+        bytes32 hash = toEthSignedMessageHash(txHash);
+        if (owner != ECDSA.recover(hash, txData.signature)) {
+            return _packValidationData(ValidationData(MAGIC_VALUE_SIGFAIL, 0, 0));
+        }
         return _packValidationData(ValidationData(MAGIC_VALUE_SENDER, 0, 0));
     }
 

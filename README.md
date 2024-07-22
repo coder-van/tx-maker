@@ -19,11 +19,9 @@ node scripts/deploy/02_pay_master.js
 node scripts/deploy/03_kick.js
 ```
 
-Second step, transfer some native coin to 2 account
-```
-node scripts/01_transfer.mjs
-node scripts/04_transfer_7560.mjs
-node scripts/05_transfer_7560_f.mjs
+Second step, transfer some native coin to paymaster account
 ```
 
-Third step, post tx data to node rpc, tx data in ./data/7560_senttx_rpc_data.json
+node scripts/01_transfer.mjs
+PK="" node scripts/02_aa_kick.mjs // PK is private key of your aa account owner
+```

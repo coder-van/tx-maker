@@ -1,5 +1,4 @@
 import {ethers} from 'ethers';
-import {addressFromMnemonic} from './tools/adresses.mjs';
 
 let provider = new ethers.JsonRpcProvider("http://localhost:8545")
 

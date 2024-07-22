@@ -16,6 +16,7 @@ abstract contract Rip7560BaseAccount is IRip7560Account {
         override
         returns (bytes32 validationData)
     {
+        (version);
         _requireFromEntryPoint();
         validationData = _validateSignature(transaction, txHash);
     }
