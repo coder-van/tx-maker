@@ -54,14 +54,6 @@ export async function sendRIP7560Tx(txdata) {
     };
 
     return await axios.request(config)
-
-        // .then((response) => {
-        //     console.log(JSON.stringify(response.data));
-        // })
-        // .catch((error) => {
-        //     console.log(error);
-        // });
-
 };
 
 
