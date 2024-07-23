@@ -124,11 +124,11 @@ async function run() {
     } = estimatResdata.data.result
     // set gasLimit fields
     txRaw.validationGas = bigIntToHex(BigInt(baseGas) + BigInt(nonceValidationGas) + BigInt(deploymentGas) + BigInt(accountValidationGas))
-    txRaw.paymasterGas = bigIntToHex(BigInt(paymasterValidationGas))
+    txRaw.paymasterGas = bigIntToHex(1) // bigIntToHex(BigInt(paymasterValidationGas))
     txRaw.callGas = callGas
     txRaw.postOpGas = postOpGas
-    txRaw.gas = bigIntToHex(50000000) // test gas over block limit
-    // bigIntToHex(BigInt(txRaw.paymasterGas) + BigInt(txRaw.validationGas) + BigInt(txRaw.callGas) + BigInt(txRaw.postOpGas))
+    // txRaw.gas = bigIntToHex(50000000) // test gas over block limit
+    txRaw.gas = bigIntToHex(BigInt(txRaw.paymasterGas) + BigInt(txRaw.validationGas) + BigInt(txRaw.callGas) + BigInt(txRaw.postOpGas))
     // call RPC API get signature hash
     const signatureHashResdata = await signatureHash(txRaw)
     console.log("signature hash RPC response data \n", signatureHashResdata.data)
