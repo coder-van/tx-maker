@@ -1,6 +1,6 @@
-# Token Contracts
+# rip7560js
 
-Token Contracts
+contracts and scripts for RIP-7560 development
 
 ```shell
 npx hardhat compile

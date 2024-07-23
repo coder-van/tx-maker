@@ -1,7 +1,7 @@
 {
-  "name": "token-contracts",
+  "name": "rip7560js",
   "version": "0.1.0",
-  "description": "token contracts",
+  "description": "contracts and scripts for RIP-7560 development",
   "main": "index.js",
   "scripts": {
     "compile": "npx hardhat compile",
