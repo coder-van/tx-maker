@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 
-import { formatNumber } from '../lib/ethers.js/lib.esm/transaction/transaction.js'
 // import { concat, encodeRlp } from '../lib/ethers.js/lib.esm/utils/index.js'
 import { estimateRIP7560TransactionGas, sendRIP7560Tx, signatureHash } from "./rpc.mjs"
 
@@ -9,68 +8,56 @@ const provider = new ethers.JsonRpcProvider(rpcUrl)
 
 
 // ************************************************************************ //
-const GasPrice = 100000000
+// const GasPrice = 100000000
 const GasLimit = 500000
-const OwnerAddress = "0xF0359B80550c6cb1Be3dA8611f2396e3F2a9Cc3C"
 const SmartAccountFactory = "0x18Df82C7E422A42D47345Ed86B0E935E9718eBda"
 const PaymasterAddress = "0x459C653FaAE6E13b59cf8E005F5f709C7b2c2EB4"
 const NonceManagerAddress = "0x0000000000000000000000000000000000007712"
 const KickAddress = "0x3945f611Fe77A51C7F3e1f84709C1a2fDcDfAC5B"
-const OwnerPrivKey = process.env.PK
+const OwnerPrivKey = process.env.OWNER_PRI_KEY
 // ************************************************************************ //
-// 0x04 || 0x00 || rlp([
-//     chainId,
-//     nonce,
-//     sender,
-//     deployer, deployerData,
-//     paymaster, paymasterData,
-//     callData,
-//     builderFee,
-//     maxPriorityFeePerGas, maxFeePerGas,
-//     validationGasLimit, paymasterValidationGasLimit, paymasterPostOpGasLimit
-//     callGasLimit,
-//     accessList,
-//     signature
-// ])
 
+function bigIntToHex(val) {
+   return "0x" + (BigInt(val)).toString(16)
+}
 
-function serializeEip7560(tx) {
-    // return encodeRlp(fields)
+function FormatRIP7560Tx(tx) {
     return {
-        // formatNumber(tx.chainId, "chainId"),
-        from: "0x0000000000000000000000000000000000007560",
         subType: "0x1",
         to: "0x0000000000000000000000000000000000000000",
         gasPrice: tx.maxFeePerGas,
         maxFeePerGas: tx.maxFeePerGas,
         maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
         data: tx.callData,
+        gas: tx.gas,  // >= validationGas + paymasterGas + callGas + postOpGas
         sender: tx.sender,
-        // paymaster: tx.paymaster,
+        // paymaster: tx.paymaster, // paymaster pleace in paymasterData[0:20]
         paymasterData: tx.paymasterData,
-        // deployer: tx.deployer,
+        // deployer: tx.deployer, // deployer pleace in deployerData[0:20]
         deployerData: tx.deployerData,
-        builderFee: "0x1",
-        gas: "0x" + BigInt(GasLimit).toString(16),
+        builderFee: "0x0",
         validationGas: tx.validationGas,
         paymasterGas: tx.paymasterGas,
+        callGas: tx.callGas,
         postOpGas: tx.postOpGas,
         signature: tx.signature,
         bigNonce: tx.nonce,
     }
 }
 
-async function sign(hash, privkey) {
-    const signer = new ethers.Wallet(privkey)
-
+async function signMessage(hash, signer) {
+    // const signer = new ethers.Wallet(privkey)
     const msg = ethers.getBytes(hash)
-    const result = await signer.signMessage(msg)
-    return result
+    return await signer.signMessage(msg)
 };
 
 async function run() {
     const now = Date.now()
 
+    const aaWalletOwnerSigner = new ethers.Wallet(OwnerPrivKey)
+    const ownerAddress = aaWalletOwnerSigner.address
+
+    const emptyHash = "0x0000000000000000000000000000000000000000000000000000000000000000"
     const privkey = '0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306'
     const signer = new ethers.Wallet(privkey, provider)
 
@@ -86,10 +73,9 @@ async function run() {
     const smartAccountFactoryContract = new ethers.Contract(SmartAccountFactory, simpleAccountFactoryAbi, signer);
 
     const index = 0;
-    const sender = await smartAccountFactoryContract.getAddressCopy(OwnerAddress, index);
+    const sender = await smartAccountFactoryContract.getAddressCopy(ownerAddress, index);
     const abiCoder = new ethers.AbiCoder()
 
-    // console.log(`${formatNumber(80087, "chainId")}`)
     console.log(`AA sender is[${sender}]`)
 
     const nonceManagerAbi = [
@@ -98,50 +84,59 @@ async function run() {
     ]
     const contract = new ethers.Contract(NonceManagerAddress, nonceManagerAbi, signer)
     const nonce1 = await contract.getNonce(sender, 1)
-    // console.log(BigInt(nonce1).toString(16))
 
     const feeData = await provider.getFeeData()
-    // console.log(feeData)
-    const gasPrice = "0x" + BigInt(feeData.gasPrice).toString(16)
-    // console.log(feeData, gasPrice)
-    // deployerData
-    // 0x5fbfb9cf0000000000000000000000007dd7daf47558b655ac9c8d7c3b806f1ceebc26940000000000000000000000000000000000000000000000000000000000000000
-    // call kick 2190018d88dC9a7D0c261e57277636f28Fd2294c
-    // 0xb61d27f60000000000000000000000002190018d88dC9a7D0c261e57277636f28Fd2294c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000047a67b47900000000000000000000000000000000000000000000000000000000
+    const gasPrice = bigIntToHex(feeData.gasPrice)
+    // callData call KickContract kick()
     const aaRip7560Transaction = {
         sender: sender,
-        nonce: "0x" + BigInt(nonce1).toString(16),
-        validationGas: "0x" + BigInt(GasLimit).toString(16),
-        paymasterGas: "0x" + BigInt(GasLimit).toString(16),
-        postOpGas: "0x" + BigInt(GasLimit).toString(16),
-        callGas: "0x" + BigInt(GasLimit).toString(16),
+        nonce: bigIntToHex(nonce1),
+        validationGas: bigIntToHex(GasLimit),
+        paymasterGas: bigIntToHex(GasLimit),
+        postOpGas:bigIntToHex(GasLimit),
+        callGas: bigIntToHex(GasLimit),
+        gas: bigIntToHex(GasLimit * 4),
         maxFeePerGas: gasPrice,
-        maxPriorityFeePerGas: "0x" + BigInt(1).toString(16),
-        builderFee: 0,
-        // paymaster: PaymasterAddress,
+        maxPriorityFeePerGas: "0x0",
         paymasterData: PaymasterAddress,
-        // deployer: SmartAccountFactory,
-        deployerData: SmartAccountFactory + "5fbfb9cf" + abiCoder.encode(["address", "uint256"], [OwnerAddress, index]).substring(2),
+        deployerData: SmartAccountFactory + "5fbfb9cf" + abiCoder.encode(["address", "uint256"], [ownerAddress, index]).substring(2),
         callData: "0xb61d27f6000000000000000000000000" + KickAddress.substring(2) + "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000047a67b47900000000000000000000000000000000000000000000000000000000",
-        signature: "0x10"
+        signature: emptyHash
     }
 
-    const txRaw = serializeEip7560(aaRip7560Transaction)
-    // console.log(JSON.stringify(txRaw))
-
+    const txRaw = FormatRIP7560Tx(aaRip7560Transaction)
     const height =  await provider.getBlockNumber()
-    console.log("0x" + BigInt(height).toString(16))
+    console.log(bigIntToHex(height))
 
-    txRaw.signature = await sign("0x0000000000000000000000000000000000000000000000000000000000000000", OwnerPrivKey)
-    const estimatResdata = await estimateRIP7560TransactionGas(txRaw, "0x" + BigInt(height).toString(16))
-    console.log("estimatResdata \n", estimatResdata.data)
+    // call gas estimate RPC API
+    txRaw.signature = await signMessage(emptyHash, aaWalletOwnerSigner) // 
+    const estimatResdata = await estimateRIP7560TransactionGas(txRaw, bigIntToHex(height))
+    console.log("estimat gas RPC response data \n", estimatResdata.data)
+
+    const {
+        baseGas,
+        nonceValidationGas,
+        deploymentGas,
+        accountValidationGas,
+        paymasterValidationGas,
+        callGas,
+        postOpGas
+    } = estimatResdata.data.result
+    // set gasLimit fields
+    txRaw.validationGas = bigIntToHex(BigInt(baseGas) + BigInt(nonceValidationGas) + BigInt(deploymentGas) + BigInt(accountValidationGas))
+    txRaw.paymasterGas = bigIntToHex(BigInt(paymasterValidationGas))
+    txRaw.callGas = callGas
+    txRaw.postOpGas = postOpGas
+    txRaw.gas = bigIntToHex(BigInt(txRaw.paymasterGas) + BigInt(txRaw.validationGas) + BigInt(txRaw.callGas) + BigInt(txRaw.postOpGas))
+    // call RPC API get signature hash
     const signatureHashResdata = await signatureHash(txRaw)
-    console.log("signatureHashResdata \n", signatureHashResdata.data)
+    console.log("signature hash RPC response data \n", signatureHashResdata.data)
     const { hash } = signatureHashResdata.data.result
-    txRaw.signature = await sign(hash, OwnerPrivKey)
+    // compute signature
+    txRaw.signature = await signMessage(hash, aaWalletOwnerSigner)
     const resdata = await sendRIP7560Tx(txRaw)
-    console.log(resdata.data)
-
+    console.log("sendRIP7560Tx RPC response data \n", resdata.data)
+    // check transaction receipt
     const txid = resdata.data.result
     setTimeout(async () => {
         const status = await provider.getTransactionReceipt(txid)
@@ -152,4 +147,15 @@ async function run() {
 run()
 
 
-// bf45c16600000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000003e0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000038f763bd07bc42e0d1a331c0a89233c3e5567d070000000000000000000000000000000000000000000000010000000000000001000000000000000000000000000000000000000000000000000000000007a120000000000000000000000000000000000000000000000000000000000007a120000000000000000000000000000000000000000000000000000000000007a120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f42470000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000001a000000000000000000000000000000000000000000000000000000000000001e0000000000000000000000000000000000000000000000000000000000000026000000000000000000000000000000000000000000000000000000000000003400000000000000000000000000000000000000000000000000000000000000014459c653faae6e13b59cf8e005f5f709c7b2c2eb4000000000000000000000000000000000000000000000000000000000000000000000000000000000000005818df82c7e422a42d47345ed86b0e935e9718ebda5fbfb9cf000000000000000000000000f0359b80550c6cb1be3da8611f2396e3f2a9cc3c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a4b61d27f60000000000000000000000003945f611fe77a51c7f3e1f84709c1a2fdcdfac5b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000047a67b479000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000410dff924cf27288935e376fb982f0d7d928bf232ab45859e321d10ab1ba561dcc3480db4f2d121c5ed815c152244f3fbb44289db246c484ef4f511fb37331ceb61c00000000000000000000000000000000000000000000000000000000000000
+// nonceValidation.UsedGas=45104
+// deployment.UsedGas=227,399
+// accountValidation.UsedGas=42495
+// paymasterValidation.UsedGas=29257
+// executionResult.UsedGas=54171
+// paymasterPostOpResult.UsedGas=24541
+
+// nonceValidation.UsedGas=45104
+// deployment.UsedGas=227,399
+// accountValidation.UsedGas=42831
+// paymasterValidation.UsedGas=29593
+// executionResult.UsedGas=54171
