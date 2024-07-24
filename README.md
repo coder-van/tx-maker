@@ -46,7 +46,6 @@ call RPC APIs use axios in scripts/rpc.mjs
     }
 }
 ```
-
 txdata is transaction json, height is block height hex format string.
 ```
 {
@@ -70,7 +69,27 @@ txdata is transaction json, height is block height hex format string.
 }
 ```
 
+RPC responce
+```
+{
+  jsonrpc: '2.0',
+  id: 1,
+  result: {
+    baseGas: '0x3a98',
+    nonceValidationGas: '0x7158',
+    deploymentGas: '0x3e8',
+    accountValidationGas: '0xe48b',
+    paymasterValidationGas: '0x763d',
+    callGas: '0x94b7',
+    postOpGas: '0x63c5'
+  }
+}
+```
+
 - eth_sendTransaction
+
+submit tx to node, gas limit use fields from eth_estimateRIP7560TransactionGas response, 
+validationGas = baseGas + nonceValidationGas + deploymentGas + accountValidationGas.
 ```
 {
     method: 'POST',

@@ -123,25 +123,38 @@ async function run() {
         postOpGas
     } = estimatResdata.data.result
     // set gasLimit fields
-    txRaw.validationGas = bigIntToHex(BigInt(baseGas) + BigInt(nonceValidationGas) + BigInt(deploymentGas) + BigInt(accountValidationGas))
-    txRaw.paymasterGas = bigIntToHex(1) // bigIntToHex(BigInt(paymasterValidationGas))
+    // BigInt(baseGas) + 
+    txRaw.validationGas = bigIntToHex(BigInt(baseGas) + 
+        BigInt(nonceValidationGas) + 
+        BigInt(deploymentGas) + 
+        BigInt(accountValidationGas) - 
+        BigInt(0))
+    txRaw.paymasterGas = bigIntToHex(BigInt(paymasterValidationGas))
     txRaw.callGas = callGas
     txRaw.postOpGas = postOpGas
     // txRaw.gas = bigIntToHex(50000000) // test gas over block limit
     txRaw.gas = bigIntToHex(BigInt(txRaw.paymasterGas) + BigInt(txRaw.validationGas) + BigInt(txRaw.callGas) + BigInt(txRaw.postOpGas))
     // call RPC API get signature hash
+    txRaw.signature = emptyHash
     const signatureHashResdata = await signatureHash(txRaw)
     console.log("signature hash RPC response data \n", signatureHashResdata.data)
     const { hash } = signatureHashResdata.data.result
     // compute signature
     txRaw.signature = await signMessage(hash, aaWalletOwnerSigner)
+    console.log(txRaw.signature)
     const resdata = await sendRIP7560Tx(txRaw)
     console.log("sendRIP7560Tx RPC response data \n", resdata.data)
     // check transaction receipt
     const txid = resdata.data.result
-    setTimeout(async () => {
+    
+    const inv = setInterval(async () => {
         const status = await provider.getTransactionReceipt(txid)
+        if (!status) { 
+            console.log('waiting tx receipt ...') 
+            return
+        }
         console.log(status)
+        clearInterval(inv)
     }, 3000)
 }
 
