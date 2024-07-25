@@ -59,11 +59,11 @@ contract NonceManager {
     }
 
     // for test
-    function getNonce(address sender, uint192 key) external view returns (uint256 nonce) {
-        return _nonceSequenceNumber[sender][key] | (uint256(key) << 64);
-    }
+    // function getNonce(address sender, uint192 key) external view returns (uint256 nonce) {
+    //     return _nonceSequenceNumber[sender][key] | (uint256(key) << 64);
+    // }
 
-    function incNonce(address sender, uint192 key) external {
-        _nonceSequenceNumber[sender][key]++;
-    }
+    // function incNonce(address sender, uint192 key) external {
+    //     _nonceSequenceNumber[sender][key]++;
+    // }
 }

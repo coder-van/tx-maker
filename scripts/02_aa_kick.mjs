@@ -24,7 +24,7 @@ function bigIntToHex(val) {
 function FormatRIP7560Tx(tx) {
     return {
         subType: "0x1",
-        to: "0x0000000000000000000000000000000000000000",
+        to: "0x0000000000000000000000000000000000007560",
         gasPrice: tx.maxFeePerGas,
         maxFeePerGas: tx.maxFeePerGas,
         maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
@@ -111,7 +111,7 @@ async function run() {
     // call gas estimate RPC API
     txRaw.signature = await signMessage(emptyHash, aaWalletOwnerSigner) // 
     const estimatResdata = await estimateRIP7560TransactionGas(txRaw, bigIntToHex(height))
-    console.log("estimat gas RPC response data \n", estimatResdata.data)
+    console.log("estimate gas RPC response data \n", estimatResdata.data)
 
     const {
         baseGas,
@@ -123,7 +123,7 @@ async function run() {
         postOpGas
     } = estimatResdata.data.result
     // set gasLimit fields
-    // BigInt(baseGas) + 
+
     txRaw.validationGas = bigIntToHex(BigInt(baseGas) + 
         BigInt(nonceValidationGas) + 
         BigInt(deploymentGas) + 

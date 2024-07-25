@@ -127,3 +127,24 @@ get signature hash for aa wallet sign, use keccak256(rlp(transaction_payload)).
 ```
 txdata is transaction json, same as txdata parameter in eth_estimateRIP7560TransactionGas
 
+## Tx Signature
+There two method in scripts/tx_sign.mjs, encodeRlp and signMessage, encodeRlp encode transaction raw data with the fixed format to RLP bytes.
+
+```
+// 0x04 || 0x01 || rlp([
+//     chainId,
+//     nonce,
+//     sender,
+//     deployer, deployerData,
+//     paymaster, paymasterData,
+//     callData,
+//     builderFee,
+//     maxPriorityFeePerGas, maxFeePerGas,
+//     validationGasLimit, paymasterValidationGasLimit, paymasterPostOpGasLimit
+//     callGasLimit,
+//     accessList,
+//     signature 
+// ])
+```
+
+signMessage use AA wallet owner private key to sign the RLP bytes.
