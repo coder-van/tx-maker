@@ -31,9 +31,9 @@ function FormatRIP7560Tx(tx) {
         data: tx.callData,
         gas: tx.gas,  // >= validationGas + paymasterGas + callGas + postOpGas
         sender: tx.sender,
-        // paymaster: tx.paymaster, // paymaster pleace in paymasterData[0:20]
+        paymaster: tx.paymaster, // paymaster pleace in paymasterData[0:20]
         paymasterData: tx.paymasterData,
-        // deployer: tx.deployer, // deployer pleace in deployerData[0:20]
+        deployer: tx.deployer, // deployer pleace in deployerData[0:20]
         deployerData: tx.deployerData,
         builderFee: "0x0",
         validationGas: tx.validationGas,
@@ -87,7 +87,8 @@ async function run() {
 
     const feeData = await provider.getFeeData()
     const gasPrice = bigIntToHex(feeData.gasPrice)
-    // callData call KickContract kick()
+    // callData is execute(address dest, uint256 value, bytes calldata func)
+    // callData func call KickContract:kick()
     const aaRip7560Transaction = {
         sender: sender,
         nonce: bigIntToHex(nonce1),
@@ -98,8 +99,10 @@ async function run() {
         gas: bigIntToHex(GasLimit * 4),
         maxFeePerGas: gasPrice,
         maxPriorityFeePerGas: "0x0",
-        paymasterData: PaymasterAddress,
-        deployerData: SmartAccountFactory + "5fbfb9cf" + abiCoder.encode(["address", "uint256"], [ownerAddress, index]).substring(2),
+        paymaster: PaymasterAddress,
+        paymasterData: "0x",
+        deployer: SmartAccountFactory,
+        deployerData: "0x5fbfb9cf" + abiCoder.encode(["address", "uint256"], [ownerAddress, index]).substring(2),
         callData: "0xb61d27f6000000000000000000000000" + KickAddress.substring(2) + "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000047a67b47900000000000000000000000000000000000000000000000000000000",
         signature: emptyHash
     }

@@ -11,8 +11,10 @@ struct TransactionType4 {
     uint256 maxFeePerGas;
     uint256 maxPriorityFeePerGas;
     uint256 builderFee;
-    bytes paymasterAndData;
-    bytes deployerAndData;
+    address paymaster;
+    bytes paymasterData;
+    address deployer;
+    bytes deployerData;
     bytes callData;
     bytes signature;
 }

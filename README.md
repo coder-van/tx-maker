@@ -131,20 +131,20 @@ txdata is transaction json, same as txdata parameter in eth_estimateRIP7560Trans
 There two method in scripts/tx_sign.mjs, encodeRlp and signMessage, encodeRlp encode transaction raw data with the fixed format to RLP bytes.
 
 ```
-// 0x04 || 0x01 || rlp([
-//     chainId,
-//     nonce,
-//     sender,
-//     deployer, deployerData,
-//     paymaster, paymasterData,
-//     callData,
-//     builderFee,
-//     maxPriorityFeePerGas, maxFeePerGas,
-//     validationGasLimit, paymasterValidationGasLimit, paymasterPostOpGasLimit
-//     callGasLimit,
-//     accessList,
-//     signature 
-// ])
+0x04 || 0x01 || rlp([
+    chainId,
+    nonce,
+    sender,
+    deployer, deployerData,
+    paymaster, paymasterData,
+    callData,
+    builderFee,
+    maxPriorityFeePerGas, maxFeePerGas,
+    validationGasLimit, paymasterValidationGasLimit, paymasterPostOpGasLimit
+    callGasLimit,
+    accessList,
+    signature // no this field
+])
 ```
 
 signMessage use AA wallet owner private key to sign the RLP bytes.
