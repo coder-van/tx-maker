@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 
 // import { concat, encodeRlp } from '../lib/ethers.js/lib.esm/utils/index.js'
 import { estimateRIP7560TransactionGas, sendRIP7560Tx, signatureHash } from "./rpc.mjs"
+import { encodeRlp } from "./tx_sign.mjs"
 
 const rpcUrl = "http://localhost:8545"
 const provider = new ethers.JsonRpcProvider(rpcUrl)
@@ -10,7 +11,7 @@ const provider = new ethers.JsonRpcProvider(rpcUrl)
 // ************************************************************************ //
 // const GasPrice = 100000000
 const GasLimit = 500000
-const SmartAccountFactory = "0x18Df82C7E422A42D47345Ed86B0E935E9718eBda"
+const SmartAccountFactory = "0x18Df82C7E422A42D47345Ed86B0E935E9718eBda" // "0x18Df82C7E422A42D47345Ed86B0E935E9718eBda"
 const PaymasterAddress = "0x459C653FaAE6E13b59cf8E005F5f709C7b2c2EB4"
 const NonceManagerAddress = "0x0000000000000000000000000000000000007712"
 const KickAddress = "0x3945f611Fe77A51C7F3e1f84709C1a2fDcDfAC5B"
@@ -142,6 +143,9 @@ async function run() {
     const signatureHashResdata = await signatureHash(txRaw)
     console.log("signature hash RPC response data \n", signatureHashResdata.data)
     const { hash } = signatureHashResdata.data.result
+
+    const encoded = encodeRlp(2013, txRaw)
+    console.log('[rlp encode hash off chain]=', encoded.hash, encoded.hash == hash ? "√" : "x" )
     // compute signature
     txRaw.signature = await signMessage(hash, aaWalletOwnerSigner)
     console.log(txRaw.signature)

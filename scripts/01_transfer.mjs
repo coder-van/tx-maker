@@ -15,6 +15,7 @@ async function run() {
     console.log(`Account[${signer.address}] nonce=${nonce}`)
     const to = "0x459C653FaAE6E13b59cf8E005F5f709C7b2c2EB4" // addressFromMnemonic(0).address
     // const to = "0xDDdDE06b3853427883485bCA250188F1aDe8d9b8"
+    // const to = "0x38F763BD07Bc42E0d1A331C0a89233C3E5567d07"
     // '0xF0359B80550c6cb1Be3dA8611f2396e3F2a9Cc3C'
     const tx = await signer.sendTransaction({
         to,
